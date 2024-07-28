@@ -1,0 +1,51 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id                String        @id @default(uuid())
+  email             String        @unique
+  business_name     String
+  promoter_name     String
+  password          String
+  transactionsAsBuyer  Transaction[] @relation("buyerTransactions")
+  transactionsAsSeller Transaction[] @relation("sellerTransactions")
+  fund                Funds[]         @relation("UserToFund")
+}
+
+model Transaction {
+  id          String      @id @default(uuid())
+  date        DateTime    @default(now())
+  buyerId     String
+  sellerId    String
+  amount      Float
+  status      TransactionStatus
+  buyer       User        @relation("buyerTransactions", fields: [buyerId], references: [id])
+  seller      User        @relation("sellerTransactions", fields: [sellerId], references: [id])
+}
+model Funds {
+  id            String  @id @default(uuid())
+  name          String
+  formNumber    String
+  loss          Int
+  income        Int
+  taxPaid       Int
+  taxPayable    Int
+  user          User    @relation("UserToFund", fields: [userId], references: [id])
+  userId        String  
+  createdAt DateTime @default(now())
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETE
+  ISSUE
+}
+
+
+
