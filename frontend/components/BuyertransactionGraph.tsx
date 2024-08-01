@@ -15,7 +15,30 @@ import {
 import NoTransactionData from './notransaction';
 
 export const BuyerTransactionHistoryGraph = () => {
-  const [data,setdata] =useState([])
+  const dummyData = [
+    {
+      id: 1,
+      sellerName: 'Dummy Seller 1',
+      status: 'COMPLETE',
+      date: '2023-07-01',
+      amount: 1000,
+    },
+    {
+      id: 2,
+      sellerName: 'Dummy Seller 2',
+      status: 'PENDING',
+      date: '2023-07-02',
+      amount: 2000,
+    },
+    {
+      id: 3,
+      sellerName: 'Dummy Seller 3',
+      status: 'ISSUE',
+      date: '2023-07-03',
+      amount: 1500,
+    },
+  ];
+  const [data,setdata] =useState(dummyData)
   const getdata = async  () => {
     const data = await axiosClient.get('/transact/buyer', {
       headers: { Authorization: `Bearer ${Cookies.get('user')}` },

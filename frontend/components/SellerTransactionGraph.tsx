@@ -14,7 +14,30 @@ import {
 } from 'recharts';
 import NoTransactionData from './notransaction';
 export const SellerTransactionHistoryGraph = () => {
-  const [data, setdata] = useState([]);
+   const dummyData = [
+     {
+       id: 1,
+       buyerName: 'Dummy Buyer 1',
+       status: 'COMPLETE',
+       date: '2023-07-01',
+       amount: 1000,
+     },
+     {
+       id: 2,
+       buyerName: 'Dummy Buyer 2',
+       status: 'PENDING',
+       date: '2023-07-02',
+       amount: 2000,
+     },
+     {
+       id: 3,
+       buyerName: 'Dummy Buyer 3',
+       status: 'ISSUE',
+       date: '2023-07-03',
+       amount: 1500,
+     },
+   ];
+  const [data, setdata] = useState(dummyData);
   const getdata = async () => {
     const data = await axiosClient.get('/transact/seller', {
       headers: { Authorization: `Bearer ${Cookies.get('user')}` },

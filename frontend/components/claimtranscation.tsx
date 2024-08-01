@@ -22,7 +22,51 @@ interface TransactionListProps {
 }
 
 const TransactionList: React.FC<TransactionListProps> = ({ userEmail }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const dummyTransactions: Transaction[] = [
+    {
+      id: '1',
+      date: '2023-07-01T10:00:00Z',
+      amount: 1000,
+      status: 'PENDING',
+      buyer: {
+        business_name: 'Dummy Buyer 1',
+        email: 'dummybuyer1@example.com',
+      },
+      seller: {
+        business_name: 'Dummy Seller 1',
+        email: 'dummyseller1@example.com',
+      },
+    },
+    {
+      id: '2',
+      date: '2023-07-02T11:00:00Z',
+      amount: 2000,
+      status: 'COMPLETE',
+      buyer: {
+        business_name: 'Dummy Buyer 2',
+        email: 'dummybuyer2@example.com',
+      },
+      seller: {
+        business_name: 'Dummy Seller 2',
+        email: 'dummyseller2@example.com',
+      },
+    },
+    {
+      id: '3',
+      date: '2023-07-03T12:00:00Z',
+      amount: 1500,
+      status: 'ISSUE',
+      buyer: {
+        business_name: 'Dummy Buyer 3',
+        email: 'dummybuyer3@example.com',
+      },
+      seller: {
+        business_name: 'Dummy Seller 3',
+        email: 'dummyseller3@example.com',
+      },
+    },
+  ];
+  const [transactions, setTransactions] = useState<Transaction[]>(dummyTransactions);
 
   useEffect(() => {
     const fetchTransactions = async () => {
