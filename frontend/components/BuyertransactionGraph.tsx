@@ -37,8 +37,9 @@ export const BuyerTransactionHistoryGraph = () => {
         return '#9E9E9E';
     }
   };
-  if (data.length < 2) {
-    <NoTransactionData/>
+
+  if (data.length < 3) {
+   return  <NoTransactionData/>
   }
   return (
     <div className="bg-white rounded-lg shadow-md p-4 h-full flex flex-col">
