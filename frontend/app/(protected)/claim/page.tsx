@@ -3,8 +3,29 @@ import React,{useState,useEffect} from 'react'
 import axiosClient from '@/helpers/axios';
 import { ClaimCard } from '@/components/claim';
 import Cookies from 'js-cookie';
+export interface Claim {
+  id: string; 
+  date: string;
+  amount: number;
+  status: string;
+  buyer: {
+    business_name: string;
+    email: string;
+  };
+  seller: {
+    business_name: string;
+    email: string;
+  };
+  claimType: string;
+  claimedBy: {
+    business_name: string;
+  };
+  claimedAgainst: {
+    business_name: string;
+  };
+}
 const Claim =()=>{
-const [claims, setclaim] = useState([]);
+const [claims, setclaim] = useState<Claim[]>([]);
   const token = Cookies.get('user');
   useEffect(() => {
     const fetchTransactions = async () => {

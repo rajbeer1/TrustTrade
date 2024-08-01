@@ -1,25 +1,38 @@
-'use client'
-import React from 'react';
+'use client';
+import React,{useState,useEffect} from 'react';
 import { jwtDecode } from '@/helpers/jwt';
-import { Button } from './ui/button';
-import Link from 'next/link';
-
+import axiosClient from '@/helpers/axios';
+import Cookies from 'js-cookie';
 export const SummaryDetails = () => {
-  const summaryData = {
-    totalMoneyAssured: 10000000,
-    premiumPaid: 750000,
-    renewalDate: '2024-12-31',
-    claimsAgainstYou: 5,
-    claimsByYou: 8,
-    totalReimbursed: 500000,
+const [summaryData, setSummaryData] = useState({
+  totalMoneyAssured: 0,
+  premiumPaid: 0,
+  renewalDate: '',
+  claimsAgainstYou: 0,
+  claimsByYou: 0,
+  totalReimbursed: 0,
+});
+  const token = Cookies.get('user')
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await axiosClient.get('/transact/welcome', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSummaryData(response.data);
+
+    } catch (error) {
+
+    }
   };
 
+  fetchData();
+}, []);
   const data = jwtDecode();
   const name = data?.owner;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 h-full flex flex-col justify-between">
-      {/* Welcome Section */}
       <div className="text-center mb-8">
         <h2 className="text-2xl font-semibold mb-2">Welcome {name}</h2>
         <p className="text-lg mb-4 italic">
@@ -27,9 +40,7 @@ export const SummaryDetails = () => {
         </p>
       </div>
 
-      {/* Summary Section */}
       <div className="bg-gray-100 rounded-lg p-4 mt-auto">
-        {/* <h3 className="text-lg font-semibold mb-4">Summary</h3> */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <p className="text-lg">
@@ -73,5 +84,3 @@ export const SummaryDetails = () => {
     </div>
   );
 };
-
-

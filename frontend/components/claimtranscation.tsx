@@ -1,16 +1,33 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import axiosClient from '@/helpers/axios';
+interface Buyer {
+  business_name: string;
+  email: string;
+}
+interface Seller {
+  business_name: string;
+  email: string;
+}
+interface Transaction {
+  id: string;
+  date: string;
+  amount: number;
+  status: string;
+  buyer: Buyer;
+  seller: Seller;
+}
+interface TransactionListProps {
+  userEmail: string;
+}
 
-const TransactionList = ({ userEmail }) => {
-  const [transactions, setTransactions] = useState([]);
+const TransactionList: React.FC<TransactionListProps> = ({ userEmail }) => {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axiosClient.get(
-          `/transact/transactions/${userEmail}`
-        );
+        const response = await axiosClient.get(`/transact/transactions/${userEmail}`);
         setTransactions(response.data);
       } catch (error) {
         console.error('Error fetching transactions:', error);
@@ -20,7 +37,7 @@ const TransactionList = ({ userEmail }) => {
     fetchTransactions();
   }, [userEmail]);
 
-  const handleClaim = async (transactionId, claimType) => {
+  const handleClaim = async (transactionId: string, claimType: 'buyer' | 'seller') => {
     try {
       await axiosClient.post('/transact/makeclaim', {
         transactionId,
@@ -28,9 +45,7 @@ const TransactionList = ({ userEmail }) => {
         claimType,
       });
       // Refresh transactions after claim
-      const response = await axiosClient.get(
-        `/transact/transactions/${userEmail}`
-      );
+      const response = await axiosClient.get(`/transact/transactions/${userEmail}`);
       setTransactions(response.data);
     } catch (error) {
       console.error('Error making claim:', error);

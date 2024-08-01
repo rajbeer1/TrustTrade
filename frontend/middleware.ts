@@ -4,7 +4,7 @@ import { NextResponse ,NextRequest} from 'next/server';
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  const publicPaths = ['/', '/sign-up'];
+  const publicPaths = ['/', '/sign-up','/api/uploadthing'];
   const protectedPaths = ['/claim', '/home','/makeClaim','/proof-funds','/trade'];
   const isPublicPath = publicPaths.includes(path);
   const isProtectedPath = protectedPaths.includes(path);

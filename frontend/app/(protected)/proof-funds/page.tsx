@@ -8,9 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 
+interface UploadedData {
+  name: string;
+  formNumber: string;
+}
+
 export default function MainPage() {
-  const [uploadStatus, setUploadStatus] = useState('null');
-  const [uploadedData, setUploadedData] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState<
+    'null' | 'error' | 'success'
+  >('null');
+  const [uploadedData, setUploadedData] = useState<UploadedData | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const token = Cookies.get('user');
 
@@ -27,7 +34,10 @@ export default function MainPage() {
         setUploadStatus('error');
       } else {
         setUploadStatus('success');
-        setUploadedData(response.data);
+        setUploadedData({
+          name: response.data.name,
+          formNumber: response.data.formNumber,
+        });
       }
     } catch (error) {
       console.error('Upload error:', error);
