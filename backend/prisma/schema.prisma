@@ -50,4 +50,7 @@ enum TransactionStatus {
   PENDING
   COMPLETE
   ISSUE
+  CLAIM_SELLER
+  CLAIM_BUYER
+  REJECT 
 }

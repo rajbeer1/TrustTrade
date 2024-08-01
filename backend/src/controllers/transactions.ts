@@ -44,7 +44,7 @@ export const initiateTransaction = async (
         sellerId: sellerID.id,
         amount: parsed.data.amount,
         date: parsed.data.date,
-        invoice : data.invoice,
+        invoice: data.invoice,
         status: 'PENDING',
       },
     });
@@ -182,7 +182,7 @@ export const getSellerTransaction = async (
   }
 };
 
-export const getPendingTransactionsn = async (
+export const getPendingTransactions = async (
   req: Request,
   res: Response,
   next: NextResponse
@@ -206,12 +206,18 @@ export const getPendingTransactionsn = async (
       orderBy: {
         date: 'desc',
       },
+      select: {
+        id: true,
+        amount: true,
+        date: true,
+        buyerId: true,
+        invoice: true, // Include invoiceUrl in the query
+      },
     });
 
     if (!entries || entries.length === 0) {
       return res.status(200).json([]);
     }
-
     const buyerIds = [...new Set(entries.map((entry) => entry.buyerId))];
 
     const buyers = await prisma.user.findMany({
@@ -234,18 +240,19 @@ export const getPendingTransactionsn = async (
         .toString()
         .padStart(2, '0')}`;
       return {
-        id:entry.id,
+        id: entry.id,
         amount: entry.amount,
         business_name: buyerMap[entry.buyerId],
         date: formattedDate,
+        invoice: entry.invoice || null,
       };
     });
-
     res.status(200).json(response);
   } catch (error) {
     next(error);
   }
 };
+
 export const approvePendingTransactions = async (
   req: Request,
   res: Response,
@@ -253,16 +260,117 @@ export const approvePendingTransactions = async (
 ) => {
   try {
     const { id, type } = req.body;
-    console.log(id)
+    console.log(type);
+    console.log(id);
     const change = await prisma.transaction.update({
       where: { id: id },
       data: {
         status: type,
-      }
-     
-    })
-     res.send({ message: 'Approved' });
+      },
+    });
+    res.send({ message: 'Approved' });
   } catch (error) {
     next(error);
   }
 };
+export const claims = async (
+  req: Request,
+  res: Response,
+  next: NextResponse
+) => {
+  const email = req.user.email;
+
+  const userId = await prisma.user.findFirst({
+    where: {
+      email: email,
+    },
+    select: { id: true },
+  });
+  if (!userId) {
+ return res.status(200).json({ message: 'user not found' });
+ }
+  try {
+    const claims = await prisma.transaction.findMany({
+      where: {
+        OR: [
+          { buyerId: userId.id, status: { in: ['CLAIM_BUYER', 'CLAIM_SELLER'] } },
+          { sellerId: userId.id, status: { in: ['CLAIM_BUYER', 'CLAIM_SELLER'] } },
+        ],
+      },
+      include: {
+        buyer: { select: { id: true, email: true, business_name: true } },
+        seller: { select: { id: true, email: true, business_name: true } },
+      },
+    });
+
+    const formattedClaims = claims.map((claim) => ({
+      ...claim,
+      claimType: claim.status === 'CLAIM_BUYER' ? 'Buyer' : 'Seller',
+      claimedBy: claim.status === 'CLAIM_BUYER' ? claim.buyer : claim.seller,
+      claimedAgainst:
+        claim.status === 'CLAIM_BUYER' ? claim.seller : claim.buyer,
+    }));
+
+    res.json(formattedClaims);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const claimtransaction = async (req:Request, res:Response,next:NextResponse) => {
+  const { userEmail } = req.params;
+
+  try {
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        OR: [{ buyer: { email: userEmail } }, { seller: { email: userEmail } }],
+        status: { in: ['PENDING', 'ISSUE'] },
+      },
+      include: {
+        buyer: { select: { email: true, business_name: true } },
+        seller: { select: { email: true, business_name: true } },
+      },
+    });
+
+    res.json(transactions);
+  } catch (error) {
+    next(error)
+  }
+};
+
+
+export const makeclaim = async (req: Request, res: Response, next: NextResponse) => { 
+  const { transactionId, userEmail, claimType } = req.body;
+
+  try {
+    const transaction = await prisma.transaction.findUnique({
+      where: { id: transactionId },
+      include: {
+        buyer: { select: { email: true } },
+        seller: { select: { email: true } },
+      },
+    });
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+
+    let newStatus;
+    if (claimType === 'seller' && transaction.seller.email === userEmail) {
+      newStatus = 'CLAIM_SELLER';
+    } else if (claimType === 'buyer' && transaction.buyer.email === userEmail) {
+      newStatus = 'CLAIM_BUYER';
+    } else {
+      return res.status(400).json({ error: 'Invalid claim type or user' });
+    }
+
+    const updatedTransaction = await prisma.transaction.update({
+      where: { id: transactionId },
+      data: { status: newStatus },
+    });
+
+    res.json(updatedTransaction);
+  } catch (error) {
+    next(error)
+  }
+}
