@@ -43,11 +43,13 @@ export const RecentTrades = () => {
    const buyerdata = await axiosClient.get('/transact/buyer', {
      headers: { Authorization: `Bearer ${Cookies.get('user')}` },
    });
-   setbuyerdata(buyerdata.data);
+  if(buyerdata.data.length>2){setbuyerdata(buyerdata.data);}
+   
    const sellerdata = await axiosClient.get('/transact/seller', {
      headers: { Authorization: `Bearer ${Cookies.get('user')}` },
    });
-   setsellerdata(sellerdata.data);
+   if (sellerdata.data.length > 2) { setsellerdata(sellerdata.data) }
+
  };
  useEffect(() => {
    getdata();

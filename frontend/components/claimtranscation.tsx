@@ -1,14 +1,18 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
 import axiosClient from '@/helpers/axios';
+
 interface Buyer {
   business_name: string;
   email: string;
 }
+
 interface Seller {
   business_name: string;
   email: string;
 }
+
 interface Transaction {
   id: string;
   date: string;
@@ -17,6 +21,7 @@ interface Transaction {
   buyer: Buyer;
   seller: Seller;
 }
+
 interface TransactionListProps {
   userEmail: string;
 }
@@ -66,13 +71,21 @@ const TransactionList: React.FC<TransactionListProps> = ({ userEmail }) => {
       },
     },
   ];
-  const [transactions, setTransactions] = useState<Transaction[]>(dummyTransactions);
+
+  const [transactions, setTransactions] =
+    useState<Transaction[]>(dummyTransactions);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const fetchTransactions = async () => {
       try {
-        const response = await axiosClient.get(`/transact/transactions/${userEmail}`);
-        setTransactions(response.data);
+        const response = await axiosClient.get(
+          `/transact/transactions/${userEmail}`
+        );
+        if (response.data.length > 0) {
+          setTransactions(response.data);
+        }
       } catch (error) {
         console.error('Error fetching transactions:', error);
       }
@@ -81,7 +94,10 @@ const TransactionList: React.FC<TransactionListProps> = ({ userEmail }) => {
     fetchTransactions();
   }, [userEmail]);
 
-  const handleClaim = async (transactionId: string, claimType: 'buyer' | 'seller') => {
+  const handleClaim = async (
+    transactionId: string,
+    claimType: 'buyer' | 'seller'
+  ) => {
     try {
       await axiosClient.post('/transact/makeclaim', {
         transactionId,
@@ -89,23 +105,29 @@ const TransactionList: React.FC<TransactionListProps> = ({ userEmail }) => {
         claimType,
       });
       // Refresh transactions after claim
-      const response = await axiosClient.get(`/transact/transactions/${userEmail}`);
+      const response = await axiosClient.get(
+        `/transact/transactions/${userEmail}`
+      );
       setTransactions(response.data);
     } catch (error) {
       console.error('Error making claim:', error);
     }
   };
 
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <div className="bg-gray-100 min-h-screen p-4 w-4/5 overflow-auto">
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6 mt-6">
         Transactions
       </h1>
-      <div className="max-w-6xl mx-auto flex  flex-wrap">
+      <div className="max-w-6xl mx-auto flex flex-wrap">
         {transactions.map((transaction) => (
           <div
             key={transaction.id}
-            className="bg-white shadow-lg  grid rounded-lg overflow-hidden mb-4 p-4 w-full sm:w-1/2 sm:pr-2"
+            className="bg-white shadow-lg grid rounded-lg overflow-hidden mb-4 p-4 w-full sm:w-1/2 sm:pr-2"
           >
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2">
               <h2 className="text-lg font-semibold text-white">

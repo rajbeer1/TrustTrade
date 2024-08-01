@@ -24,8 +24,52 @@ export interface Claim {
     business_name: string;
   };
 }
-const Claim =()=>{
-const [claims, setclaim] = useState<Claim[]>([]);
+const Claim = () => {
+   const dummyClaims: Claim[] = [
+     {
+       id: '1',
+       date: '2023-07-01T10:00:00Z',
+       amount: 1000,
+       status: 'PENDING',
+       buyer: {
+         business_name: 'Dummy Buyer 1',
+         email: 'dummybuyer1@example.com',
+       },
+       seller: {
+         business_name: 'Dummy Seller 1',
+         email: 'dummyseller1@example.com',
+       },
+       claimType: 'buyer',
+       claimedBy: {
+         business_name: 'Dummy Buyer 1',
+       },
+       claimedAgainst: {
+         business_name: 'Dummy Seller 1',
+       },
+     },
+     {
+       id: '2',
+       date: '2023-07-02T11:00:00Z',
+       amount: 2000,
+       status: 'COMPLETE',
+       buyer: {
+         business_name: 'Dummy Buyer 2',
+         email: 'dummybuyer2@example.com',
+       },
+       seller: {
+         business_name: 'Dummy Seller 2',
+         email: 'dummyseller2@example.com',
+       },
+       claimType: 'seller',
+       claimedBy: {
+         business_name: 'Dummy Seller 2',
+       },
+       claimedAgainst: {
+         business_name: 'Dummy Buyer 2',
+       },
+     },
+   ];
+const [claims, setclaim] = useState<Claim[]>(dummyClaims);
   const token = Cookies.get('user');
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -35,7 +79,10 @@ const [claims, setclaim] = useState<Claim[]>([]);
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        setclaim(response.data);
+        if (response.data.length > 1) {
+          setclaim(response.data);
+        }
+        
       } catch (error) {
         console.error('Error fetching transactions:', error);
       }
