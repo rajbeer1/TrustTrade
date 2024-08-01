@@ -12,6 +12,7 @@ RUN npm install
 
 # Copy the rest of the application code
 COPY . .
+RUN npx prisma generate
 RUN npm run build
 # Expose port 3500
 EXPOSE 3500
