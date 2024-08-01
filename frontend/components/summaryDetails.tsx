@@ -3,6 +3,7 @@ import React,{useState,useEffect} from 'react';
 import { jwtDecode } from '@/helpers/jwt';
 import axiosClient from '@/helpers/axios';
 import Cookies from 'js-cookie';
+import Loader from './loader';
 export const SummaryDetails = () => {
 const [summaryData, setSummaryData] = useState({
   totalMoneyAssured: 0,
@@ -12,7 +13,7 @@ const [summaryData, setSummaryData] = useState({
   claimsByYou: 0,
   totalReimbursed: 0,
 });
-  const token = Cookies.get('user')
+
 useEffect(() => {
   const fetchData = async () => {
     try {
@@ -29,8 +30,24 @@ useEffect(() => {
   fetchData();
 }, []);
   const data = jwtDecode();
-  const name = data?.owner;
 
+const [name, setName] = useState('');
+const [isMounted, setIsMounted] = useState(false);
+const token = Cookies.get('user');
+
+useEffect(() => {
+  setIsMounted(true);
+  if (token) {
+    const data = jwtDecode();
+    if (!data) {
+      return
+    }
+    setName(data?.owner);
+  }
+}, [token]);
+  if (!isMounted) {
+    return<Loader/>
+  }
   return (
     <div className="bg-white rounded-lg shadow-md p-4 h-full flex flex-col justify-between">
       <div className="text-center mb-8">

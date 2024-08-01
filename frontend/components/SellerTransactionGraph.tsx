@@ -42,7 +42,10 @@ export const SellerTransactionHistoryGraph = () => {
     const data = await axiosClient.get('/transact/seller', {
       headers: { Authorization: `Bearer ${Cookies.get('user')}` },
     });
-    setdata(data.data);
+    if (data.data.length > 2) {
+      setdata(data.data);
+    }
+    
   };
   useEffect(() => {
     getdata();

@@ -137,7 +137,10 @@ const dummyPendingTransactions: PendingTransaction[] = [
       const response = await axiosClient.get('/transact/pending', {
         headers: { Authorization: 'Bearer ' + Cookies.get('user') },
       });
-      setPendingTransactionAmount(response.data);
+      if (response.data.length > 1) {
+        setPendingTransactionAmount(response.data);
+      }
+      
     } catch (error) {
       toast.error('Something went wrong');
       console.error('Transaction error:', error);
