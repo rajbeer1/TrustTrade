@@ -4,8 +4,41 @@ import axiosClient from '@/helpers/axios';
 import Cookies from 'js-cookie';
 import NoTransactionData from './notransaction';
 export const RecentTrades = () => {
-  const [buyerTransactions, setbuyerdata] = useState([]);
-  const [sellerTransactions, setsellerdata] = useState([]);
+  const dummyBuyerData = [
+    {
+      id: 1,
+      sellerName: 'Dummy Seller 1',
+      status: 'COMPLETE',
+      date: '2023-07-01',
+      amount: 1000,
+    },
+    {
+      id: 2,
+      sellerName: 'Dummy Seller 2',
+      status: 'PENDING',
+      date: '2023-07-02',
+      amount: 2000,
+    },
+  ];
+
+  const dummySellerData = [
+    {
+      id: 3,
+      sellerName: 'Dummy Buyer 1',
+      status: 'COMPLETE',
+      date: '2023-07-03',
+      amount: 1500,
+    },
+    {
+      id: 4,
+      sellerName: 'Dummy Buyer 2',
+      status: 'FAILED',
+      date: '2023-07-04',
+      amount: 2500,
+    },
+  ];
+  const [buyerTransactions, setbuyerdata] = useState(dummyBuyerData);
+  const [sellerTransactions, setsellerdata] = useState(dummySellerData);
  const getdata = async () => {
    const buyerdata = await axiosClient.get('/transact/buyer', {
      headers: { Authorization: `Bearer ${Cookies.get('user')}` },

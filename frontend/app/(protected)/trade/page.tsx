@@ -35,6 +35,7 @@ interface Business {
   safetyRating: number;
 }
 
+
 interface PendingTransaction {
   id: string;
   business_name: string;
@@ -44,6 +45,34 @@ interface PendingTransaction {
 }
 
 export default function BusinessSearch() {
+const dummyPendingTransactions: PendingTransaction[] = [
+  {
+    id: 'txn1',
+    business_name: 'Business One',
+    amount: 1500,
+    date: '2023-07-01T10:00:00Z',
+
+  },
+  {
+    id: 'txn2',
+    business_name: 'Business Two',
+    amount: 2500,
+    date: '2023-07-02T11:00:00Z',
+
+  },
+  {
+    id: 'txn3',
+    business_name: 'Business Three',
+    amount: 1800,
+    date: '2023-07-03T12:00:00Z',
+  },
+  {
+    id: 'txn4',
+    business_name: 'Business Four',
+    amount: 2200,
+    date: '2023-07-04T13:00:00Z',
+
+  }]
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Business[]>([]);
@@ -57,7 +86,7 @@ export default function BusinessSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [pendingTransactionAmount, setPendingTransactionAmount] = useState<
     PendingTransaction[]
-  >([]);
+  >(dummyPendingTransactions);
 
   const debouncedSearch = useCallback(
     debounce(async (searchQuery: string) => {
