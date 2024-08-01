@@ -24,14 +24,14 @@ export const RecentTrades = () => {
   const dummySellerData = [
     {
       id: 3,
-      sellerName: 'Dummy Buyer 1',
+      buyerName: 'Dummy Buyer 1',
       status: 'COMPLETE',
       date: '2023-07-03',
       amount: 1500,
     },
     {
       id: 4,
-      sellerName: 'Dummy Buyer 2',
+      buyerName: 'Dummy Buyer 2',
       status: 'FAILED',
       date: '2023-07-04',
       amount: 2500,
@@ -64,7 +64,7 @@ export const RecentTrades = () => {
           >
             <div className="flex justify-between items-center">
               <span className="font-medium text-gray-800">
-                {transaction.sellerName}
+                {transaction.sellerName? transaction.sellerName:transaction.buyerName}
               </span>
               <span
                 className={`text-sm font-semibold ${
