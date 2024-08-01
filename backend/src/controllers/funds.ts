@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import pdf from 'pdf-parse';
-import { prisma } from '../helpers';
+import { calculateBusinessMetrics, prisma } from '../helpers';
 export const AddFunds = async (
   req: Request,
   res: Response,
@@ -10,18 +10,17 @@ export const AddFunds = async (
   try {
     const userEmail = req.user.email;
     const url = req.body.url;
-    console.log(url);
 
     const response = await axios.get(url, { responseType: 'arraybuffer' });
     const data = await pdf(response.data);
     const text = data.text;
-    console.log(text);
+
     const extractedData = extractInformation(text);
     if ('message' in extractedData) {
       return res.json(extractedData);
     }
     const userId = await prisma.user.findFirst({
-      where: { email: userEmail },select:{id:true}
+      where: { email: userEmail }
     })
     if (!userId
     ) {
@@ -38,7 +37,17 @@ export const AddFunds = async (
         userId:userId.id
       },
     });
-
+    const funds = await prisma.funds.findMany({
+      where: { userId: userId.id },
+      
+    })
+    const businessMetric = calculateBusinessMetrics(userId, funds)
+    await prisma.user.update({
+      where: { id: userId.id }, data: {
+        sumAssured: businessMetric.sumAssured,
+        safetyRating: businessMetric.safetyRating,
+      }
+    })
     res.json(dbEntry);
   } catch (error) {
     next(error);

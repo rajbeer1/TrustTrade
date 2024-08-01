@@ -12,6 +12,8 @@ export const registerBusiness = async (
     const body = req.body;
 
     const parsedBody = businessSignup.safeParse(body);
+
+
     if (!parsedBody.success) {
       return res.status(403).json({ message: 'enter required fields' });
     }
@@ -31,7 +33,7 @@ export const registerBusiness = async (
         ],
       },
     });
-    console.log(businessRegistred)
+
     if (businessRegistred) {
       return res.status(400).json({ message: 'business already added' });
     }

@@ -39,9 +39,9 @@ const Navbar = () => {
           </li>
           <li>
             {' '}
-            <Link href="premium-payment">
+            <Link href="makeClaim">
               <div className="flex text-2xl items-center py-2 px-4 hover:bg-gray-700 rounded">
-                <FaMoneyBillWave className="mr-3" /> Premium Payment
+                <FaMoneyBillWave className="mr-3" /> Make a Claim
               </div>
             </Link>
           </li>

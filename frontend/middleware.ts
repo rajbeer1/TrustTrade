@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   const publicPaths = ['/', '/sign-up'];
-  const protectedPaths = ['/data', '/home','/map','/photo'];
+  const protectedPaths = ['/claim', '/home','/makeClaim','/proof-funds','/trade'];
   const isPublicPath = publicPaths.includes(path);
   const isProtectedPath = protectedPaths.includes(path);
   const token = request.cookies.get('user')?.value || '';
@@ -22,9 +22,10 @@ export const config = {
   matcher: [
     '/sign-up', // Public path
     '/', // Public path
-    '/data', // Protected path
+    '/claim',
     '/home',
-    '/map',
-    '/photo'
+    '/makeClaim',
+    '/proof-funds',
+    '/trade'
   ],
 };
