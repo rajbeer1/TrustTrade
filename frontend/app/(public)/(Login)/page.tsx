@@ -17,6 +17,11 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { setCookie } from '@/helpers/cookie';
+interface UploadedData {
+  name: string;
+  formNumber: string;
+}
+
 export default function LoginAccount() {
   const router = useRouter();
   const [data, setdata] = useState({

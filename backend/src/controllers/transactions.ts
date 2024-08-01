@@ -374,3 +374,74 @@ export const makeclaim = async (req: Request, res: Response, next: NextResponse)
     next(error)
   }
 }
+
+export const welcome = async (req: Request, res: Response, next: NextResponse) => {
+const email = req.user.email;
+
+const userId = await prisma.user.findFirst({
+  where: {
+    email: email,
+  },
+  select: { id: true },
+});
+  if (!userId) {
+    return res.status(400).json({ error: 'Invalid claim type or user' });
+  }
+  const user = await prisma.user.findUnique({
+    where: { id: userId.id },
+    select: { sumAssured: true },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const premiumPaid = await prisma.funds.aggregate({
+    where: { userId: userId.id },
+    _sum: {
+      taxPaid: true,
+    },
+  });
+
+  const latestFund = await prisma.funds.findFirst({
+    where: { userId: userId.id },
+    orderBy: { createdAt: 'desc' },
+  });
+  console.log(latestFund)
+  const claimsAgainstYou = await prisma.transaction.count({
+    where: {
+      sellerId: userId.id,
+      status: 'CLAIM_SELLER',
+    },
+  });
+
+  const claimsByYou = await prisma.transaction.count({
+    where: {
+      buyerId: userId.id,
+      status: 'CLAIM_BUYER',
+    },
+  });
+
+
+  const totalReimbursed = await prisma.transaction.aggregate({
+    where: {
+      buyerId: userId.id,
+      status: 'COMPLETE',
+    },
+    _sum: {
+      amount: true,
+    },
+  });
+
+  const ress= {
+    totalMoneyAssured: user.sumAssured,
+    premiumPaid: premiumPaid._sum.taxPaid ?? 0,
+    renewalDate: latestFund
+      ? latestFund.createdAt.toISOString().split('T')[0]
+      : null,
+    claimsAgainstYou,
+    claimsByYou,
+    totalReimbursed: totalReimbursed._sum.amount ?? 0,
+  };
+  res.send(ress)
+};

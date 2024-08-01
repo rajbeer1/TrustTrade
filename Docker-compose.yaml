@@ -13,5 +13,17 @@ services:
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: my_backend
+    environment:
+      DATABASE_URL: "postgresql://rajbeer:q1w2e3r4t5y6@db:5432/TrustTrade"
+    ports:
+      - "3500:3500"
+    depends_on:
+      - db
+
 volumes:
   postgres_data:

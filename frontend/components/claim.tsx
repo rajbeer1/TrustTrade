@@ -1,6 +1,27 @@
 import React from 'react';
+interface Claim {
+  id: string;
+  date: string;
+  amount: number;
+  status: string;
+  buyer: {
+    business_name: string;
+    email: string;
+  };
+  seller: {
+    business_name: string;
+    email: string;
+  };
+  claimType: string;
+  claimedBy: {
+    business_name: string;
+  };
+  claimedAgainst: {
+    business_name: string;
+  };
+}
 
-export const ClaimCard = ({ claim }) => {
+export const ClaimCard: React.FC<{ claim: Claim }> = ({ claim }) => {
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden h-full">
       <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2">

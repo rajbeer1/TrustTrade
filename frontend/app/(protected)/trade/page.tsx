@@ -11,8 +11,7 @@ import Cookies from 'js-cookie';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { UploadButton } from '@/components/uploadthing';
-import { FaFilePdf } from 'react-icons/fa';
-import { FaSearch, FaSpinner } from 'react-icons/fa';
+import { FaFilePdf, FaSearch, FaSpinner } from 'react-icons/fa';
 
 const customStyles = {
   content: {
@@ -22,41 +21,46 @@ const customStyles = {
     bottom: 'auto',
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
-    width: '40%', // Adjust the width as needed
-    maxHeight: '60vh', // Adjust the height as needed
-    overflowY: 'auto',
+    width: '40%',
+    maxHeight: '60vh',
+    overflowY: 'auto' as 'auto',
   },
 };
 
+interface Business {
+  id: string;
+  business_name: string;
+  promoter_name: string;
+  sumAssured: number;
+  safetyRating: number;
+}
+
+interface PendingTransaction {
+  id: string;
+  business_name: string;
+  amount: number;
+  date: string;
+  invoice?: string;
+}
+
 export default function BusinessSearch() {
-  
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<
-    {
-      id: string;
-      business_name: string;
-      promoter_name: string;
-      sumAssured: number;
-      safetyRating: number;
-    }[]
-  >([]);
+  const [results, setResults] = useState<Business[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(
+    null
+  );
   const [transactionAmount, setTransactionAmount] = useState('0');
-  const [invoice, setinvoice] = useState('')
-  const [loading, setloading] = useState(false)
+  const [invoice, setInvoice] = useState('');
+  const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [pendingTransactionAmount, setPendingTransactionAmount] = useState<
-    {
-      id: string;
-      business_name: string;
-      amount: number;
-      date: string;
-    }[]
+    PendingTransaction[]
   >([]);
+
   const debouncedSearch = useCallback(
-    debounce(async (searchQuery) => {
+    debounce(async (searchQuery: string) => {
       if (searchQuery.length < 2) {
         setResults([]);
         return;
@@ -80,14 +84,16 @@ export default function BusinessSearch() {
   useEffect(() => {
     debouncedSearch(query);
   }, [query, debouncedSearch]);
-  const handleUploadComplete = async (res:any) => {
+
+  const handleUploadComplete = async (res: any) => {
     try {
-       setinvoice(res[0].url)
-  } catch (error) {
-      toast.error("error in uploading invoice")
-  }
-}
-  const openModal = (business: any) => {
+      setInvoice(res[0].url);
+    } catch (error) {
+      toast.error('Error in uploading invoice');
+    }
+  };
+
+  const openModal = (business: Business) => {
     setSelectedBusiness(business);
     setIsModalOpen(true);
   };
@@ -96,23 +102,30 @@ export default function BusinessSearch() {
     setIsModalOpen(false);
     setTransactionAmount('');
   };
-  const pendingtransactions = async () => {
+
+  const pendingTransactions = async () => {
     try {
       const response = await axiosClient.get('/transact/pending', {
         headers: { Authorization: 'Bearer ' + Cookies.get('user') },
       });
       setPendingTransactionAmount(response.data);
     } catch (error) {
-      toast.error('something went wrong');
+      toast.error('Something went wrong');
       console.error('Transaction error:', error);
     }
   };
+
   const handleTransactionSubmit = async () => {
+    if (!selectedBusiness) {
+      toast.error('No business selected');
+      return;
+    }
+
     try {
       const payload = {
         id: selectedBusiness.id,
         amount: parseFloat(transactionAmount),
-        invoice:invoice,
+        invoice: invoice,
         date: new Date().toISOString(),
       };
       const response = await axiosClient.post('/transact/new', payload, {
@@ -126,23 +139,23 @@ export default function BusinessSearch() {
         closeModal();
       }
     } catch (error) {
-      toast.error('something went wrong');
+      toast.error('Something went wrong');
       console.error('Transaction error:', error);
     }
   };
+
   useEffect(() => {
-    pendingtransactions();
-    
+    pendingTransactions();
   }, []);
+
   useEffect(() => {
     if (invoice !== '' && transactionAmount !== '') {
-  setloading(true);
-}
-  }, [invoice, transactionAmount])
-  console.log(isLoading)
+      setLoading(true);
+    }
+  }, [invoice, transactionAmount]);
+
   return (
     <div className="flex w-full h-screen overflow-hidden">
-      {/* Left segment: Business search */}
       <div className="w-1/2 p-4 bg-gray-50 overflow-y-auto">
         <div className="w-full max-w-md mx-auto">
           <Toaster
@@ -271,7 +284,7 @@ export default function BusinessSearch() {
           )}
         </div>
       </div>
-      {/* Right segment: Pending transactions */}
+
       <div className="w-1/2 p-4 bg-gray-50 overflow-y-auto">
         <h2 className="text-xl font-semibold mb-3 pt-5 text-center pb-5 mt-3">
           Pending Transactions
@@ -280,7 +293,7 @@ export default function BusinessSearch() {
           <div className="text-center text-lg mt-6 text-gray-600">
             No pending transactions.
           </div>
-        ) :
+        ) : (
           <ul className="divide-y divide-gray-200">
             {pendingTransactionAmount.map((transaction) => (
               <li
@@ -367,7 +380,8 @@ export default function BusinessSearch() {
                 </div>
               </li>
             ))}
-          </ul>}
+          </ul>
+        )}
       </div>
     </div>
   );
