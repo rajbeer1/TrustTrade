@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosClient = axios.create({
-  baseURL: 'https://trusttrade.onrender.com',
+  baseURL: 'https://rajbeer.fun',
 });
 
 export default axiosClient;
