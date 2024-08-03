@@ -90,7 +90,7 @@ const dummyPendingTransactions: PendingTransaction[] = [
 
   const debouncedSearch = useCallback(
     debounce(async (searchQuery: string) => {
-      if (searchQuery.length < 2) {
+      if (searchQuery.length < 1) {
         setResults([]);
         return;
       }
